@@ -1,0 +1,81 @@
+#Day 02- Services & Tags
+
+# Ansible- Install & Enable Nginx
+- name: Install and start Nginx on Tanudata
+  hosts: all
+  become: yes
+
+  tasks:
+   - name: Install nginx
+     yum:
+       name: nginx
+       state: present
+
+   - name: Enable nginx
+     service:
+       name: nginx
+       state: started
+       enable: yes
+
+
+
+# Terraform - EC2 with Tags (r5.2xlarge)
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_instance" "PathnexEC2" {
+  ami = "ami-0sannjjhbhbhb2123"
+  instance_type = "r5.2xlarge"
+
+  tags = {
+    Name = "Tanudata"
+    Environment = "Learning"
+    Owner = "PathnexStudent"
+  }
+}
+
+
+
+
+
+# Kubernetes — Deployment with 2 Replicas
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: Tanudata-deployment
+spec:
+  replicas: 2
+  selector:
+    matchlabels:
+      app: growthsutra-app
+  templete:
+    matadata:
+      lables:
+        app: growthsutra-app
+    spec:
+      containers:
+       - name: app
+         image: nginx
+	 ports:
+	   - containerport: 80
+
+
+
+
+# shell script - Disk usage
+# !/bin/bash
+df -h
+
+# Docker
+# Docker Images & Containers
+docker pull ubuntu
+docker image
+docker ps -a
+
+# Docker File
+FROM ubuntu:22.04
+RUN apt update
+CMD ["echo", "Hello, My Self Tanu Khatana"]
+
+
