@@ -1,0 +1,84 @@
+#Day 03 - Ansible, Terraform & Kubernetes Basics
+# Ansible - Install Apache and start service
+
+- name: Install and Start Apache
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install apache
+      yum:
+        name: httpd
+        state: present
+
+    - name: Start apache
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+
+# Terraform - EC2 Instance (t3.medium)
+provider "aws" {
+  region = "us-west-1"
+}
+
+resource "aws_instance" "TanudataEC2" {
+  ami = "ami-0jkjiuojijij12"
+  instance_type = "t3.medium"
+  tags = {
+    name = "Tanudata-T3"
+  }
+}
+
+
+# Kubernetes - Create a ReplicaSet with 3 Replicas
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+   name: tanudata-replicaset
+spec:
+   replicas: 3
+   selector:
+     matchLabels:
+       app: tanudata-app
+     spec:
+       containers:
+         - name: app
+         image: nginx
+         ports:
+           - containerPort: 80
+
+
+
+
+# Shell Script - User Info
+# !/bin/bash
+
+echo "Current user: $(whoami)"
+echo "Current user groups: $(groups)'
+
+
+
+
+
+# Docker
+# Docker File for Nginx Web Server
+
+FROM nginx:latest
+COPY index.html /usr/share/nginx/html/index.html
+
+
+
+# HTML CODE
+<h1>Hello Team</h1>
+
+
+# BASH Real Path
+/usr/share/nginx/html
+
+
+# BASH
+docker build -t tanudata-nginx .
+docker run -d -p 80:80 tanudata-nginx
+                             
