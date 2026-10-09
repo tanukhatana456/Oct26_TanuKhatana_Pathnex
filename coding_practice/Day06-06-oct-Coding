@@ -1,0 +1,82 @@
+# Docker 
+- name: Install Docker
+  hosts: all
+  become: yes
+  tasks: 
+    - name: Install Docker
+      yum: 
+        name: docker
+	state: present
+    - name: Start Docker
+      service:
+        name: docker
+	state: started
+	enabled: yes
+
+
+
+#Terraform -Provisioning EC2 With VPC
+resource "aws_vpc" "main" {
+  cide_block = "10.0.0.0/16"
+}
+
+resource "aws_instance" "tanudata_ec2" {
+  ami 		= "ami-0iu8u8u98u8y889i99"
+  instance_type = "t3.medium"
+  subnet_id     = aws_subnet.main.id
+  tags = {
+     name = "Tanudata-EC2"
+  }
+}
+
+
+#  Kubernetes - Pod With Volume Mount
+apiVersion: v1
+kind: Pod
+metadata:
+   name: tanudata-pod
+spec:
+   containers:
+     - name: web
+       image: nginx
+       volumeMounts:
+         - mountPath: /usr/share/nginx/html
+	   name: html-volume
+   volumes:
+     - name: html-volume
+       hostPath:
+         path: /data
+	 type: Directory
+
+
+# Shell Script - Check for Running Services
+#!/bin/bash
+services=("nginx" "docker" "httpd")
+for service in "${services[@]}"
+do 
+   if systemctl is-active --quiet $service; then
+     echo "$serviceis running"
+   else 
+     echo "$service is not running
+   fi
+done
+
+
+
+
+# Docker
+# Node.js Application (JavaScript)
+console.log("Hello Tanu World");
+
+
+
+# Docker File
+FROM nod:18
+WORKDIR /opt/tanudata/node-app
+COPY app.js /opt/tanudata/node-app/
+CMD ["node", "/opt/tanudata/node-app/app.js"]
+
+
+
+# REAL PATH
+/opt/tanudata/node-app
