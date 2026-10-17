@@ -1,0 +1,119 @@
+# Day14 - Kubernetes Advanced Concepts & Multi-Environment Deployments
+
+# Ansible - Setup Nginx with Reverse Proxy
+
+```yaml
+- name: Setup Nginx with Reverse Proxy
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install nginx
+      yam:
+        name: nginx
+	state: present
+   - name: Configure nginx as reverse proxy
+     template:
+       src: reverse-proxy.conf.j2
+       dest: /etc/nginx/conf.d/reverse-proxy.conf
+   - name: Restart nginx service
+     service:
+       name: nginx
+       state: restarted
+       enabled: yes
+
+
+
+# Terraform - Create S3 Bucket with Versioning and Logging
+resource "aws_s3_bucket" "tanudata_bucket" {
+  bucket = "tanudata-bucket"
+  versioning {
+    enabled = true
+  }
+
+  logging {
+    target_bucket = "tanudata-log-bucket"
+    target_prefix = "logs/"
+  }
+}
+
+
+# Kubernetes - Ingress with Nginx Controller
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tanudata-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: tanudata.local
+      http:
+        paths:
+	- path: /
+	  pathType: Prefix
+	  backend:
+	    service:
+	      name: tanudata-service
+	      port:
+	        number: 80
+
+
+
+# Jenkinsfile - Build, Test, and Deploy with Stages
+pipeline {
+    agent any 
+    stages {
+        stage('Build') {
+            steps {
+	    	echo 'Building Docker Image...'
+		docker.build('tanudata-web-app')
+	    }
+	}
+	stage('Test') {
+            steps {
+	     	echo 'Running Tests...'
+            }
+	}
+	stage('Deploy To Kubernetes') {
+	   steps {
+	       script {
+	           sh 'kubectl apply -f kubernetes/deployment.yaml'
+	       }
+	   }
+        }
+    }
+}
+
+
+
+# GitLab CI/CD - Multi-stage Deployment with Helm
+stages:
+  - build
+  - push
+  - deploy
+
+build:
+  stage: build
+  script:
+    - docker build -t tanudata-web-app .
+
+push:
+  stage: push
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+    - docker push tanudata-web-app
+
+deploy:
+  stage: deploy
+  script:
+    - helm update --install tanudata-nginx tanudata/nginx-ingress
+
+
+
+
+# Docker
+# CMD vs ENTRYPONT
+FROM ubuntu
+ENTRYPOINT ["echo"]
+CMD ["Hello Tanudata"]
+
